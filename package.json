@@ -1,0 +1,19 @@
+{
+  "name": "loot-chest-backend",
+  "module": "index.ts",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Backend for Loot Chest",
+  "main": "index.ts",
+  "scripts": {
+    "start": "node index.ts",
+    "dev": "bun --hot run index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
