@@ -1,23 +1,15 @@
 {
   "name": "loot-chest-backend",
-  "module": "index.ts",
-  "type": "module",
-  "version": "1.0.0",
-  "description": "Backend for Loot Chest",
-  "main": "index.ts",
+  "version": "1.0.50",
   "scripts": {
-    "start": "node index.ts",
-    "dev": "bun --hot run index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@types/figlet": "^1.5.8"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
-    "figlet": "^1.7.0"
-  }
+    "elysia": "latest"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "module": "src/index.js"
 }
