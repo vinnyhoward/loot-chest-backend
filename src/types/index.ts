@@ -2,8 +2,8 @@ export type User = {
   id: string;
   email: string;
   fullName: string;
-  firstName: string;
-  lastName: string;
+  username: string;
+  password: string;
   createdAt: Date;
   updatedAt: Date;
   chestInteractions: UserChestInteraction[];
