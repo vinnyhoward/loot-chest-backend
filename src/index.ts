@@ -1,22 +1,13 @@
-import { Elysia, t } from "elysia";
-import { Pool } from "pg";
-// import { db } from "./services/db";
-
-// const pool = new Pool({
-//   connectionString: process.env.DATABASE_URL,
-// });
+import { Elysia } from "elysia";
+import { prisma } from "./services/prisma";
 
 const app = new Elysia()
+  .decorate("db", prisma)
   .state("version", 1.0)
-  .post("/", () => "Hello World!", {
-    body: t.Object({
-      name: t.String(),
-    }),
+  .get("/users", ({ db }) => {
+    return db.user.findMany();
   })
-  .get("/get-user", async () => {
-    return {};
-  })
-  .listen(3000);
+  .listen(process.env.API_PORT || 8020);
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
