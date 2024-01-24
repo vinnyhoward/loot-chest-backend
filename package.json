@@ -12,6 +12,7 @@
     "prisma": "^5.8.1"
   },
   "devDependencies": {
+    "@sanity/client": "^6.11.2",
     "@types/pg": "^8.10.9",
     "bun-types": "latest"
   },
