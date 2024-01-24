@@ -1,23 +1,20 @@
-import { Elysia } from "elysia";
-import { db } from "./services/db";
+import { Elysia, t } from "elysia";
+import { Pool } from "pg";
+// import { db } from "./services/db";
+
+// const pool = new Pool({
+//   connectionString: process.env.DATABASE_URL,
+// });
 
 const app = new Elysia()
-  .decorate("db", async () => db)
   .state("version", 1.0)
-  .post("/", async ({ db, body }) => {
-    // testing elysia and pg
-    const { username, password } = body;
-    const result = await db(
-      `INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *`,
-      [username, password]
-    );
-    console.log("result1:", await result);
-    return body;
+  .post("/", () => "Hello World!", {
+    body: t.Object({
+      name: t.String(),
+    }),
   })
-  .get("/get-user", async ({ db }) => {
-    const result = await db(`SELECT * FROM users`);
-    console.log("result2:", await result);
-    return result;
+  .get("/get-user", async () => {
+    return {};
   })
   .listen(3000);
 
