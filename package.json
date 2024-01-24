@@ -6,6 +6,8 @@
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
+    "@elysiajs/cookie": "^0.8.0",
+    "@elysiajs/jwt": "^0.8.0",
     "@prisma/client": "5.8.1",
     "elysia": "latest",
     "pg": "^8.11.3",

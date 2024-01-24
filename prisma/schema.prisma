@@ -11,39 +11,39 @@ datasource db {
 }
 
 model User {
-  id                String                 @id @default(cuid())
-  email             String                 @unique
-  fullName          String
-  firstName         String
-  lastName          String
-  createdAt         DateTime               @default(now())
-  updatedAt         DateTime               @updatedAt
-  chestInteractions UserChestInteraction[]
-  prizeLogs         PrizeLog[]
+  id                 String                @id @default(cuid())
+  email              String                @unique
+  password           String
+  username           String                @unique
+  firstName          String
+  lastName           String
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  chestInteractions  UserChestInteraction[]
+  prizeLogs          PrizeLog[]
 }
 
 model UserChestInteraction {
-  id            String   @id @default(cuid())
-  userId        String
-  sanityChestId String
-  openedAt      DateTime @default(now())
-  User          User     @relation(fields: [userId], references: [id])
+  id                 String               @id @default(cuid())
+  userId             String
+  sanityChestId      String    
+  openedAt           DateTime             @default(now())
+  User               User                 @relation(fields: [userId], references: [id])
 }
 
 model PrizeLog {
-  id                 String            @id @default(cuid())
+  id                 String               @id @default(cuid())
   userId             String
-  prizeFulfillmentId String?           @unique
-  wonAt              DateTime          @default(now())
+  prizeFulfillmentId String?              @unique
+  wonAt              DateTime             @default(now()) 
   sanityChestId      String
   rollValue          Float
-  User               User              @relation(fields: [userId], references: [id])
-  prizeFulfillment   PrizeFulfillment? @relation(fields: [prizeFulfillmentId], references: [id])
-  // PrizeFulfillment   PrizeFulfillment?    
+  User               User                 @relation(fields: [userId], references: [id])
+  prizeFulfillment   PrizeFulfillment?    @relation(fields: [prizeFulfillmentId], references: [id])
 }
 
 model PrizeFulfillment {
-  id                  String    @id @default(cuid())
+  id                  String              @id @default(cuid())
   firstName           String?
   lastName            String?
   phoneNumber         String?
@@ -55,6 +55,4 @@ model PrizeFulfillment {
   zip                 String?
   cryptoWalletAddress String?
   PrizeLog            PrizeLog?
-  // prizeLogId          String?             @unique
-  // prizeLog            PrizeLog?           @relation(fields: [prizeLogId], references: [id])
 }
