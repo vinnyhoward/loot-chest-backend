@@ -4,6 +4,7 @@ export type User = {
   fullName: string;
   username: string;
   password: string;
+  isAdmin: string;
   createdAt: Date;
   updatedAt: Date;
   chestInteractions: UserChestInteraction[];
