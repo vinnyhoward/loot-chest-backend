@@ -1,11 +1,15 @@
 import { Elysia } from "elysia";
-import { auth } from "./controller/auth";
 import { jwt } from "@elysiajs/jwt";
+import { cors } from "@elysiajs/cors";
+import { auth } from "./controller/auth";
+import { sanityClient } from "./services/sanity";
 import { jwtConfig } from "./services/jwt";
 import { prisma } from "./services/prisma";
 
 const app = new Elysia()
+  .use(cors())
   .decorate("db", prisma)
+  .decorate("sanity", sanityClient)
   .state("version", 1.0)
   .use(jwt(jwtConfig))
   .use(auth)
