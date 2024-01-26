@@ -219,7 +219,6 @@ export const auth = (app: Elysia) =>
             };
           }
 
-          console.log("DINK");
           if (!user) {
             set.status = 401;
             return {
@@ -229,7 +228,7 @@ export const auth = (app: Elysia) =>
                 "Authentication failed: User credentials not provided or invalid.",
             };
           }
-          console.log("DINK");
+
           if (!userId) {
             set.status = 401;
             return {
@@ -239,7 +238,7 @@ export const auth = (app: Elysia) =>
                 "Bad request: User ID is missing in the request headers.",
             };
           }
-          console.log("DINK");
+
           if (user.id !== userId) {
             set.status = 401;
             return {
@@ -249,7 +248,7 @@ export const auth = (app: Elysia) =>
                 "Forbidden: You do not have permission to access this user's data.",
             };
           }
-          console.log("DINK");
+
           const userExists = await db.user.findUnique({
             where: {
               id: userId,
