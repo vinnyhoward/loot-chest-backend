@@ -207,6 +207,100 @@ export const auth = (app: Elysia) =>
           };
         })
         // @ts-ignore
+        .put("/me", async ({ db, user, headers, set, body }) => {
+          const { userid: userId } = headers;
+          const { username, email } = body as User;
+          if (!username || !email) {
+            set.status = 400;
+            return {
+              success: false,
+              data: null,
+              message: "Bad request: Username or email is missing.",
+            };
+          }
+
+          console.log("DINK");
+          if (!user) {
+            set.status = 401;
+            return {
+              success: false,
+              data: null,
+              message:
+                "Authentication failed: User credentials not provided or invalid.",
+            };
+          }
+          console.log("DINK");
+          if (!userId) {
+            set.status = 401;
+            return {
+              success: false,
+              data: null,
+              message:
+                "Bad request: User ID is missing in the request headers.",
+            };
+          }
+          console.log("DINK");
+          if (user.id !== userId) {
+            set.status = 401;
+            return {
+              success: false,
+              data: null,
+              message:
+                "Forbidden: You do not have permission to access this user's data.",
+            };
+          }
+          console.log("DINK");
+          const userExists = await db.user.findUnique({
+            where: {
+              id: userId,
+            },
+            select: {
+              id: true,
+              username: true,
+              email: true,
+            },
+          });
+
+          if (!userExists) {
+            set.status = 401;
+            return {
+              success: false,
+              data: null,
+              message: "Unauthorized Access",
+            };
+          }
+
+          try {
+            const updatedUser = await db.user.update({
+              where: {
+                id: userId,
+              },
+              data: {
+                username,
+                email,
+              },
+              select: {
+                id: true,
+                username: true,
+                email: true,
+              },
+            });
+
+            return {
+              success: true,
+              data: updatedUser,
+              message: "User updated successfully",
+            };
+          } catch (error) {
+            set.status = 500;
+            return {
+              success: false,
+              data: null,
+              message: "Something went wrong.",
+            };
+          }
+        })
+        // @ts-ignore
         .get("/all", async ({ db, set, user }) => {
           if (!user) {
             set.status = 401;
@@ -232,6 +326,9 @@ export const auth = (app: Elysia) =>
                 id: true,
                 username: true,
                 email: true,
+                isAdmin: true,
+                createdAt: true,
+                updatedAt: true,
               },
             });
 
@@ -239,6 +336,65 @@ export const auth = (app: Elysia) =>
               success: true,
               data: users,
               message: "Users fetched successfully",
+            };
+          } catch (error) {
+            set.status = 500;
+            return {
+              success: false,
+              data: null,
+              message: "Something went wrong.",
+            };
+          }
+        })
+        // @ts-ignore
+        .get("/:id", async ({ db, set, user, params }) => {
+          const { id } = params;
+          if (!user) {
+            set.status = 401;
+            return {
+              success: false,
+              data: null,
+              message: "Unauthorized",
+            };
+          }
+
+          if (!user.isAdmin) {
+            set.status = 401;
+            return {
+              success: false,
+              data: null,
+              message: "Unauthorized Access",
+            };
+          }
+
+          try {
+            const user = await db.user.findUnique({
+              where: {
+                id,
+              },
+              select: {
+                id: true,
+                username: true,
+                email: true,
+                isAdmin: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            });
+
+            if (!user) {
+              set.status = 404;
+              return {
+                success: false,
+                data: null,
+                message: "User not found",
+              };
+            }
+
+            return {
+              success: true,
+              data: user,
+              message: "User fetched successfully",
             };
           } catch (error) {
             set.status = 500;
