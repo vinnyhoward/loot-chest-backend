@@ -6,6 +6,7 @@ export const auth = (app: Elysia) =>
   app.group("/users", (app) => {
     return (
       app
+        .use(isAuthenticated)
         .post(
           "/signup",
           // @ts-ignore
@@ -130,6 +131,7 @@ export const auth = (app: Elysia) =>
             return {
               success: true,
               data: {
+                id: user.id,
                 username: user.username,
                 email: user.email,
               },
@@ -144,7 +146,66 @@ export const auth = (app: Elysia) =>
             }),
           }
         )
-        .use(isAuthenticated)
+        // @ts-ignore
+        .get("/me", async ({ db, user, headers, set }) => {
+          const { userid: userId } = headers;
+
+          if (!user) {
+            set.status = 401;
+            return {
+              success: false,
+              data: null,
+              message:
+                "Authentication failed: User credentials not provided or invalid.",
+            };
+          }
+
+          if (!userId) {
+            set.status = 401;
+            return {
+              success: false,
+              data: null,
+              message:
+                "Bad request: User ID is missing in the request headers.",
+            };
+          }
+
+          if (user.id !== userId) {
+            set.status = 401;
+            return {
+              success: false,
+              data: null,
+              message:
+                "Forbidden: You do not have permission to access this user's data.",
+            };
+          }
+
+          const userExists = await db.user.findUnique({
+            where: {
+              id: userId,
+            },
+            select: {
+              id: true,
+              username: true,
+              email: true,
+            },
+          });
+
+          if (!userExists) {
+            set.status = 401;
+            return {
+              success: false,
+              data: null,
+              message: "Unauthorized Access",
+            };
+          }
+
+          return {
+            success: true,
+            data: userExists,
+            message: "User fetched successfully",
+          };
+        })
         // @ts-ignore
         .get("/all", async ({ db, set, user }) => {
           if (!user) {
