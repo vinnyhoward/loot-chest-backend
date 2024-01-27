@@ -1,13 +1,12 @@
 import { Elysia, t } from "elysia";
 import { UserChestInteraction } from "../types";
-import { isAuthenticated } from "../middleware/isAuthenticated";
 import { rollForPrize } from "../utils/rollForPrize";
 
 export const chests = (app: Elysia) => {
   return app.group("/chests", (app) => {
     return (
       app
-        .use(isAuthenticated)
+        // @ts-ignore
         .get("/all", async ({ user, set }) => {
           // TODO: Fetch all chests from Sanity and return here
           if (!user) {
@@ -67,7 +66,7 @@ export const chests = (app: Elysia) => {
 
             // Mocking a chest win threshold for now
             const mockChestWinThreshold = 5.75; // 0.0 - 100.0
-            let prize = null;
+            let prize: UserChestInteraction[] = [];
             if (rollForPrize(mockChestWinThreshold)) {
               prize = await db.PrizeLog.create({
                 data: {

@@ -1,12 +1,10 @@
 import { Elysia, t } from "elysia";
 import { User } from "../types";
-import { isAuthenticated } from "../middleware/isAuthenticated";
 
 export const auth = (app: Elysia) =>
   app.group("/users", (app) => {
     return (
       app
-        .use(isAuthenticated)
         .post(
           "/signup",
           // @ts-ignore
@@ -347,7 +345,7 @@ export const auth = (app: Elysia) =>
         })
         // @ts-ignore
         .get("/:id", async ({ db, set, user, params }) => {
-          const { id } = params;
+          const { id } = params as { id: string };
           if (!user) {
             set.status = 401;
             return {

@@ -1,10 +1,9 @@
 export type User = {
   id: string;
   email: string;
-  fullName: string;
   username: string;
   password: string;
-  isAdmin: string;
+  isAdmin: boolean;
   createdAt: Date;
   updatedAt: Date;
   chestInteractions: UserChestInteraction[];
@@ -16,6 +15,8 @@ export type UserChestInteraction = {
   userId: string;
   sanityChestId: string;
   openedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
   User: User;
 };
 
@@ -24,8 +25,12 @@ export type PrizeLog = {
   userId: string;
   prizeFulfillmentId?: string;
   wonAt: Date;
+  itemWon: string;
   sanityChestId: string;
   rollValue: number;
+  interactionId: string;
+  createdAt: Date;
+  updatedAt: Date;
   User: User;
   prizeFulfillment?: PrizeFulfillment;
 };
@@ -41,6 +46,8 @@ export type PrizeFulfillment = {
   state?: string;
   city?: string;
   zip?: string;
+  createdAt: Date;
+  updatedAt: Date;
   cryptoWalletAddress?: string;
   PrizeLog?: PrizeLog;
 };
