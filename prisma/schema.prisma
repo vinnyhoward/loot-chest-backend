@@ -27,6 +27,8 @@ model UserChestInteraction {
   userId             String
   sanityChestId      String    
   openedAt           DateTime             @default(now())
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
   User               User                 @relation(fields: [userId], references: [id])
 }
 
@@ -37,6 +39,9 @@ model PrizeLog {
   wonAt              DateTime             @default(now()) 
   sanityChestId      String
   rollValue          Float
+  interactionId      String
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
   User               User                 @relation(fields: [userId], references: [id])
   prizeFulfillment   PrizeFulfillment?    @relation(fields: [prizeFulfillmentId], references: [id])
 }
@@ -52,6 +57,8 @@ model PrizeFulfillment {
   state               String?
   city                String?
   zip                 String?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
   cryptoWalletAddress String?
   PrizeLog            PrizeLog?
 }
