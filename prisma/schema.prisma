@@ -37,6 +37,7 @@ model PrizeLog {
   userId             String
   prizeFulfillmentId String?              @unique
   wonAt              DateTime             @default(now()) 
+  itemWon            String
   sanityChestId      String
   rollValue          Float
   interactionId      String
