@@ -8,6 +8,7 @@ export type User = {
   updatedAt: Date;
   chestInteractions: UserChestInteraction[];
   prizeLogs: PrizeLog[];
+  prizeFulfillments: PrizeFulfillment[];
 };
 
 export type UserChestInteraction = {
@@ -37,6 +38,7 @@ export type PrizeLog = {
 
 export type PrizeFulfillment = {
   id: string;
+  userId: string;
   firstName?: string;
   lastName?: string;
   phoneNumber?: string;
@@ -50,4 +52,5 @@ export type PrizeFulfillment = {
   updatedAt: Date;
   cryptoWalletAddress?: string;
   PrizeLog?: PrizeLog;
+  User: User;
 };

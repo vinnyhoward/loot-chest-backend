@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { PrizeLog } from "../types";
+import { PrizeLog, PrizeFulfillment } from "../types";
 
 export const prizes = (app: Elysia) => {
   return app.group("/prizes", (app) => {
@@ -119,6 +119,126 @@ export const prizes = (app: Elysia) => {
             }),
           }
         )
+        // @ts-ignore
+        .post("/fulfillment", async ({ user, set, db, body }) => {
+          if (!user) {
+            set.status = 401;
+            return {
+              success: false,
+              data: null,
+              message: "Access denied. Please log in to proceed.",
+            };
+          }
+
+          const {
+            firstName,
+            lastName,
+            phoneNumber,
+            email,
+            address,
+            country,
+            state,
+            city,
+            zip,
+            createdAt,
+            updatedAt,
+            cryptoWalletAddress,
+          } = body as PrizeFulfillment;
+
+          let prizeFulfillment: PrizeFulfillment | null = null;
+          try {
+            prizeFulfillment = await db.PrizeFulfillment.create({
+              data: {
+                userId: user.id,
+                firstName,
+                lastName,
+                phoneNumber,
+                email,
+                address,
+                country,
+                state,
+                city,
+                zip,
+                createdAt,
+                updatedAt,
+                cryptoWalletAddress,
+              },
+            });
+
+            return {
+              success: true,
+              data: prizeFulfillment,
+              message: "Successfully updated created prize fulfillment",
+            };
+          } catch (error) {
+            set.status = 500;
+            return {
+              success: false,
+              data: null,
+              message: "An error occurred while fetching the user's prize.",
+            };
+          }
+        })
+        // @ts-ignore
+        .get("/:id/fulfillment", async ({ user, params, set, db }) => {
+          if (!user) {
+            set.status = 401;
+            return {
+              success: false,
+              data: null,
+              message: "Access denied. Please log in to proceed.",
+            };
+          }
+
+          const { id: prizeFulfillmentId } = params;
+
+          let prizeFulfillment: PrizeFulfillment | null = null;
+          try {
+            prizeFulfillment = await db.PrizeFulfillment.findUnique({
+              where: {
+                id: prizeFulfillmentId,
+              },
+              select: {
+                id: true,
+                userId: true,
+                firstName: true,
+                lastName: true,
+                phoneNumber: true,
+                email: true,
+                address: true,
+                country: true,
+                state: true,
+                city: true,
+                zip: true,
+                createdAt: true,
+                updatedAt: true,
+                cryptoWalletAddress: true,
+              },
+            });
+
+            if (!prizeFulfillment) {
+              set.status = 404;
+              return {
+                success: false,
+                data: null,
+                message: "Prize fulfillment not found.",
+              };
+            }
+
+            return {
+              success: true,
+              data: prizeFulfillment,
+              message: "Successfully fetched prize",
+            };
+          } catch (error) {
+            set.status = 500;
+            return {
+              success: false,
+              data: null,
+              message: "An error occurred while fetching the user's prize.",
+            };
+          }
+        })
     );
   });
 };
