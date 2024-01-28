@@ -18,6 +18,8 @@ ENV PATH="/root/.bun/bin:$PATH"
 # Copy the current directory contents into the container at /usr/src/app
 COPY . .
 
+COPY prisma ./prisma
+
 # Install any needed packages specified in package.json
 RUN bun install
 
