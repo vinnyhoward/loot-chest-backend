@@ -30,73 +30,84 @@ export const chests = (app: Elysia) => {
             message: "You are authenticated and are fetching chests!",
           };
         })
-        // @ts-ignore
-        .post("/:id/open", async ({ user, db, set, body, params }) => {
-          if (!user) {
-            set.status = 401;
-            return {
-              success: false,
-              data: null,
-              message: "Access denied. Please log in to proceed.",
-            };
-          }
+        .post(
+          "/:id/open",
+          // @ts-ignore
+          async ({ user, db, set, body, params }) => {
+            if (!user) {
+              set.status = 401;
+              return {
+                success: false,
+                data: null,
+                message: "Access denied. Please log in to proceed.",
+              };
+            }
 
-          const { id: chestId } = params as { id: string };
-          const { userId } = body as { userId: string };
+            const { id: chestId } = params as { id: string };
+            const { userId } = body as { userId: string };
 
-          if (user.id !== userId) {
-            set.status = 403;
-            return {
-              success: false,
-              data: null,
-              message:
-                "Access forbidden. You cannot open a chest on behalf of another user.",
-            };
-          }
+            if (user.id !== userId) {
+              set.status = 403;
+              return {
+                success: false,
+                data: null,
+                message:
+                  "Access forbidden. You cannot open a chest on behalf of another user.",
+              };
+            }
 
-          try {
-            const interaction = await db.UserChestInteraction.create({
-              data: {
-                userId,
-                sanityChestId: chestId,
-                openedAt: new Date(),
-                updatedAt: new Date(),
-              },
-            });
-
-            // Mocking a chest win threshold for now
-            const mockChestWinThreshold = 5.75; // 0.0 - 100.0
-            let prize: UserChestInteraction[] = [];
-            if (rollForPrize(mockChestWinThreshold)) {
-              prize = await db.PrizeLog.create({
+            try {
+              const interaction = await db.UserChestInteraction.create({
                 data: {
                   userId,
-                  wonAt: new Date(),
-                  itemWon: "Test Prize",
                   sanityChestId: chestId,
-                  rollValue: mockChestWinThreshold,
-                  interactionId: interaction.id,
-                  createdAt: new Date(),
+                  openedAt: new Date(),
                   updatedAt: new Date(),
                 },
               });
-            }
 
-            return {
-              success: true,
-              data: { interaction, prize },
-              message: "Chest opened successfully.",
-            };
-          } catch (error) {
-            set.status = 500;
-            return {
-              success: false,
-              data: null,
-              message:
-                "An error occurred while trying to open the chest. Please try again later.",
-            };
+              // Mocking a chest win threshold for now
+              const mockChestWinThreshold = 5.75; // 0.0 - 100.0
+              let prize: UserChestInteraction[] = [];
+              if (rollForPrize(mockChestWinThreshold)) {
+                prize = await db.PrizeLog.create({
+                  data: {
+                    userId,
+                    wonAt: new Date(),
+                    itemWon: "Test Prize",
+                    sanityChestId: chestId,
+                    rollValue: mockChestWinThreshold,
+                    interactionId: interaction.id,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                  },
+                });
+              }
+
+              return {
+                success: true,
+                data: { interaction, prize },
+                message: "Chest opened successfully.",
+              };
+            } catch (error) {
+              set.status = 500;
+              return {
+                success: false,
+                data: null,
+                message:
+                  "An error occurred while trying to open the chest. Please try again later.",
+              };
+            }
+          },
+          {
+            body: t.Object({
+              userId: t.String(),
+            }),
+            params: t.Object({
+              id: t.String(),
+            }),
           }
-        })
+        )
         // @ts-ignore
         .get("/me/interactions", async ({ user, db, set }) => {
           if (!user) {

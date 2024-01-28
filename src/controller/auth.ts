@@ -144,137 +144,45 @@ export const auth = (app: Elysia) =>
             }),
           }
         )
-        // @ts-ignore
-        .get("/me", async ({ db, user, headers, set }) => {
-          const { userid: userId } = headers;
+        .get(
+          "/me",
+          // @ts-ignore
+          async ({ db, user, headers, set }) => {
+            const { userid: userId } = headers;
 
-          if (!user) {
-            set.status = 401;
-            return {
-              success: false,
-              data: null,
-              message:
-                "Authentication failed: User credentials not provided or invalid.",
-            };
-          }
+            if (!user) {
+              set.status = 401;
+              return {
+                success: false,
+                data: null,
+                message:
+                  "Authentication failed: User credentials not provided or invalid.",
+              };
+            }
 
-          if (!userId) {
-            set.status = 401;
-            return {
-              success: false,
-              data: null,
-              message:
-                "Bad request: User ID is missing in the request headers.",
-            };
-          }
+            if (!userId) {
+              set.status = 401;
+              return {
+                success: false,
+                data: null,
+                message:
+                  "Bad request: User ID is missing in the request headers.",
+              };
+            }
 
-          if (user.id !== userId) {
-            set.status = 401;
-            return {
-              success: false,
-              data: null,
-              message:
-                "Forbidden: You do not have permission to access this user's data.",
-            };
-          }
+            if (user.id !== userId) {
+              set.status = 401;
+              return {
+                success: false,
+                data: null,
+                message:
+                  "Forbidden: You do not have permission to access this user's data.",
+              };
+            }
 
-          const userExists = await db.user.findUnique({
-            where: {
-              id: userId,
-            },
-            select: {
-              id: true,
-              username: true,
-              email: true,
-            },
-          });
-
-          if (!userExists) {
-            set.status = 401;
-            return {
-              success: false,
-              data: null,
-              message: "Unauthorized Access",
-            };
-          }
-
-          return {
-            success: true,
-            data: userExists,
-            message: "User fetched successfully",
-          };
-        })
-        // @ts-ignore
-        .put("/me", async ({ db, user, headers, set, body }) => {
-          const { userid: userId } = headers;
-          const { username, email } = body as User;
-          if (!username || !email) {
-            set.status = 400;
-            return {
-              success: false,
-              data: null,
-              message: "Bad request: Username or email is missing.",
-            };
-          }
-
-          if (!user) {
-            set.status = 401;
-            return {
-              success: false,
-              data: null,
-              message:
-                "Authentication failed: User credentials not provided or invalid.",
-            };
-          }
-
-          if (!userId) {
-            set.status = 401;
-            return {
-              success: false,
-              data: null,
-              message:
-                "Bad request: User ID is missing in the request headers.",
-            };
-          }
-
-          if (user.id !== userId) {
-            set.status = 401;
-            return {
-              success: false,
-              data: null,
-              message:
-                "Forbidden: You do not have permission to access this user's data.",
-            };
-          }
-
-          const userExists = await db.user.findUnique({
-            where: {
-              id: userId,
-            },
-            select: {
-              id: true,
-              username: true,
-              email: true,
-            },
-          });
-
-          if (!userExists) {
-            set.status = 401;
-            return {
-              success: false,
-              data: null,
-              message: "Unauthorized Access",
-            };
-          }
-
-          try {
-            const updatedUser = await db.user.update({
+            const userExists = await db.user.findUnique({
               where: {
                 id: userId,
-              },
-              data: {
-                username,
-                email,
               },
               select: {
                 id: true,
@@ -283,20 +191,132 @@ export const auth = (app: Elysia) =>
               },
             });
 
+            if (!userExists) {
+              set.status = 401;
+              return {
+                success: false,
+                data: null,
+                message: "Unauthorized Access",
+              };
+            }
+
             return {
               success: true,
-              data: updatedUser,
-              message: "User updated successfully",
+              data: userExists,
+              message: "User fetched successfully",
             };
-          } catch (error) {
-            set.status = 500;
-            return {
-              success: false,
-              data: null,
-              message: "Something went wrong.",
-            };
+          },
+          {
+            headers: t.Object({
+              userid: t.String(),
+            }),
           }
-        })
+        )
+        .put(
+          "/me",
+          // @ts-ignore
+          async ({ db, user, headers, set, body }) => {
+            const { userid: userId } = headers;
+            const { username, email } = body as User;
+            if (!username || !email) {
+              set.status = 400;
+              return {
+                success: false,
+                data: null,
+                message: "Bad request: Username or email is missing.",
+              };
+            }
+
+            if (!user) {
+              set.status = 401;
+              return {
+                success: false,
+                data: null,
+                message:
+                  "Authentication failed: User credentials not provided or invalid.",
+              };
+            }
+
+            if (!userId) {
+              set.status = 401;
+              return {
+                success: false,
+                data: null,
+                message:
+                  "Bad request: User ID is missing in the request headers.",
+              };
+            }
+
+            if (user.id !== userId) {
+              set.status = 401;
+              return {
+                success: false,
+                data: null,
+                message:
+                  "Forbidden: You do not have permission to access this user's data.",
+              };
+            }
+
+            const userExists = await db.user.findUnique({
+              where: {
+                id: userId,
+              },
+              select: {
+                id: true,
+                username: true,
+                email: true,
+              },
+            });
+
+            if (!userExists) {
+              set.status = 401;
+              return {
+                success: false,
+                data: null,
+                message: "Unauthorized Access",
+              };
+            }
+
+            try {
+              const updatedUser = await db.user.update({
+                where: {
+                  id: userId,
+                },
+                data: {
+                  username,
+                  email,
+                },
+                select: {
+                  id: true,
+                  username: true,
+                  email: true,
+                },
+              });
+
+              return {
+                success: true,
+                data: updatedUser,
+                message: "User updated successfully",
+              };
+            } catch (error) {
+              set.status = 500;
+              return {
+                success: false,
+                data: null,
+                message: "Something went wrong.",
+              };
+            }
+          },
+          {
+            headers: t.Object({
+              userid: t.String(),
+            }),
+            body: t.Object({
+              username: t.String(),
+              email: t.String(),
+            }),
+          }
+        )
         // @ts-ignore
         .get("/all", async ({ db, set, user }) => {
           if (!user) {
@@ -343,64 +363,72 @@ export const auth = (app: Elysia) =>
             };
           }
         })
-        // @ts-ignore
-        .get("/:id", async ({ db, set, user, params }) => {
-          const { id } = params as { id: string };
-          if (!user) {
-            set.status = 401;
-            return {
-              success: false,
-              data: null,
-              message: "Unauthorized",
-            };
-          }
-
-          if (!user.isAdmin) {
-            set.status = 401;
-            return {
-              success: false,
-              data: null,
-              message: "Unauthorized Access",
-            };
-          }
-
-          try {
-            const user = await db.user.findUnique({
-              where: {
-                id,
-              },
-              select: {
-                id: true,
-                username: true,
-                email: true,
-                isAdmin: true,
-                createdAt: true,
-                updatedAt: true,
-              },
-            });
-
+        .get(
+          "/:id",
+          // @ts-ignore
+          async ({ db, set, user, params }) => {
+            const { id } = params as { id: string };
             if (!user) {
-              set.status = 404;
+              set.status = 401;
               return {
                 success: false,
                 data: null,
-                message: "User not found",
+                message: "Unauthorized",
               };
             }
 
-            return {
-              success: true,
-              data: user,
-              message: "User fetched successfully",
-            };
-          } catch (error) {
-            set.status = 500;
-            return {
-              success: false,
-              data: null,
-              message: "Something went wrong.",
-            };
+            if (!user.isAdmin) {
+              set.status = 401;
+              return {
+                success: false,
+                data: null,
+                message: "Unauthorized Access",
+              };
+            }
+
+            try {
+              const user = await db.user.findUnique({
+                where: {
+                  id,
+                },
+                select: {
+                  id: true,
+                  username: true,
+                  email: true,
+                  isAdmin: true,
+                  createdAt: true,
+                  updatedAt: true,
+                },
+              });
+
+              if (!user) {
+                set.status = 404;
+                return {
+                  success: false,
+                  data: null,
+                  message: "User not found",
+                };
+              }
+
+              return {
+                success: true,
+                data: user,
+                message: "User fetched successfully",
+              };
+            } catch (error) {
+              set.status = 500;
+              return {
+                success: false,
+                data: null,
+                message: "Something went wrong.",
+              };
+            }
+          },
+          {
+            params: t.Object({
+              id: t.String(),
+            }),
           }
-        })
+        )
     );
   });

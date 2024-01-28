@@ -1,4 +1,4 @@
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
 
 export const logs = (app: Elysia) => {
   return app.get("/health-check", async ({ set }) => {
