@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { UserChestInteraction } from "../types";
+import { UserChestInteraction, ChestResponse, Reward } from "../types";
 import { rollForPrize } from "../utils/rollForPrize";
 
 export const chests = (app: Elysia) => {
@@ -7,8 +7,7 @@ export const chests = (app: Elysia) => {
     return (
       app
         // @ts-ignore
-        .get("/all", async ({ user, set }) => {
-          // TODO: Fetch all chests from Sanity and return here
+        .get("/all", async ({ user, set, cms }) => {
           if (!user) {
             set.status = 401;
             return {
@@ -26,14 +25,29 @@ export const chests = (app: Elysia) => {
               message: "Unauthorized Credentials",
             };
           }
+
+          let chests: ChestResponse[] = [];
+          try {
+            chests = await cms.fetch('*[_type == "lootchest"]');
+          } catch {
+            set.status = 500;
+            return {
+              success: false,
+              data: null,
+              message: "An error occurred while fetching chests.",
+            };
+          }
+
           return {
+            success: true,
+            data: chests,
             message: "You are authenticated and are fetching chests!",
           };
         })
         .post(
           "/:id/open",
           // @ts-ignore
-          async ({ user, db, set, body, params }) => {
+          async ({ user, db, cms, set, body, params }) => {
             if (!user) {
               set.status = 401;
               return {
@@ -66,17 +80,36 @@ export const chests = (app: Elysia) => {
                 },
               });
 
-              // Mocking a chest win threshold for now
-              const mockChestWinThreshold = 5.75; // 0.0 - 100.0
+              const chest: ChestResponse | null = await cms.fetch(
+                `*[_type == "lootchest" && _id == "${chestId}"][0]`
+              );
+
+              if (!chest) {
+                set.status = 404;
+                return {
+                  success: false,
+                  data: null,
+                  message: "Chest not found.",
+                };
+              }
+
+              const selectedReward: Reward =
+                chest.rewardList[
+                  Math.floor(Math.random() * chest.rewardList.length)
+                ];
+
               let prize: UserChestInteraction[] = [];
-              if (rollForPrize(mockChestWinThreshold)) {
+              const winPercentage = selectedReward.winPercentage * 100;
+              const [isWinner, rollValue] = rollForPrize(winPercentage);
+
+              if (isWinner) {
                 prize = await db.PrizeLog.create({
                   data: {
                     userId,
                     wonAt: new Date(),
-                    itemWon: "Test Prize",
+                    itemWon: selectedReward.rewardName,
                     sanityChestId: chestId,
-                    rollValue: mockChestWinThreshold,
+                    rollValue,
                     interactionId: interaction.id,
                     createdAt: new Date(),
                     updatedAt: new Date(),

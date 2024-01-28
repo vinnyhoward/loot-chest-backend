@@ -54,3 +54,50 @@ export type PrizeFulfillment = {
   PrizeLog?: PrizeLog;
   User: User;
 };
+
+export type ChestResponse = {
+  chestDescription: string;
+  rewardList: Reward[];
+  _rev: string;
+  _type: string;
+  _createdAt: string;
+  chestImage: ChestImage;
+  _updatedAt: string;
+  chestName: string;
+  isHidden: boolean;
+  chestModel: string;
+  chestIcon: ChestIcon;
+  createdBy: string;
+  _id: string;
+};
+
+export type Reward = {
+  rewardImage: RewardImage;
+  formFields: string[];
+  _key: string;
+  winPercentage: number;
+  rewardName: string;
+  itemInventory: number;
+  _type: string;
+  rewardDescription: string;
+};
+
+export type RewardImage = {
+  asset: AssetReference;
+  _type: string;
+};
+
+export type ChestImage = {
+  _type: string;
+  asset: AssetReference;
+};
+
+export type ChestIcon = {
+  _type: string;
+  asset: AssetReference;
+};
+
+export type AssetReference = {
+  _ref: string;
+  _type: string;
+};
