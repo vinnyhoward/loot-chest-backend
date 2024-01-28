@@ -3,6 +3,7 @@ import { jwt } from "@elysiajs/jwt";
 import { cors } from "@elysiajs/cors";
 import { rateLimit } from "elysia-rate-limit";
 import { isAuthenticated } from "./middleware/isAuthenticated";
+import { logs } from "./controller/logs";
 import { auth } from "./controller/auth";
 import { chests } from "./controller/chests";
 import { prizes } from "./controller/prizes";
@@ -17,6 +18,7 @@ const app = new Elysia()
   .decorate("sanity", sanityClient)
   .state("version", 1.0)
   .use(jwt(jwtConfig))
+  .use(logs)
   .use(isAuthenticated)
   .use(prizes)
   .use(auth)
