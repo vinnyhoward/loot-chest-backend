@@ -61,6 +61,7 @@ export const auth = (app: Elysia) =>
                 userId: user.id,
               });
 
+              set.status = 200;
               return {
                 success: true,
                 token,
@@ -126,6 +127,7 @@ export const auth = (app: Elysia) =>
               userId: user.id,
             });
 
+            set.status = 200;
             return {
               success: true,
               data: {
@@ -200,6 +202,7 @@ export const auth = (app: Elysia) =>
               };
             }
 
+            set.status = 200;
             return {
               success: true,
               data: userExists,
@@ -293,6 +296,7 @@ export const auth = (app: Elysia) =>
                 },
               });
 
+              set.status = 200;
               return {
                 success: true,
                 data: updatedUser,
@@ -349,6 +353,7 @@ export const auth = (app: Elysia) =>
               },
             });
 
+            set.status = 200;
             return {
               success: true,
               data: users,
@@ -410,6 +415,7 @@ export const auth = (app: Elysia) =>
                 };
               }
 
+              set.status = 200;
               return {
                 success: true,
                 data: user,

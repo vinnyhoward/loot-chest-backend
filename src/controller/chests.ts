@@ -38,6 +38,7 @@ export const chests = (app: Elysia) => {
             };
           }
 
+          set.status = 200;
           return {
             success: true,
             data: chests,
@@ -117,6 +118,7 @@ export const chests = (app: Elysia) => {
                 });
               }
 
+              set.status = 200;
               return {
                 success: true,
                 data: { interaction, prize },
@@ -166,6 +168,7 @@ export const chests = (app: Elysia) => {
               },
             });
 
+            set.status = 200;
             return {
               success: true,
               data: interactions,

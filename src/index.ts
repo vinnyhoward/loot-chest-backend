@@ -13,7 +13,7 @@ import { prisma } from "./services/prisma";
 
 const app = new Elysia()
   .use(cors())
-  .use(rateLimit())
+  // .use(rateLimit())
   .decorate("db", prisma)
   .decorate("cms", sanityClient)
   .state("version", 1.0)

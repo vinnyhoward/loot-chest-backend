@@ -34,6 +34,7 @@ export const prizes = (app: Elysia) => {
               },
             });
 
+            set.status = 200;
             return {
               success: true,
               data: prizes,
@@ -99,6 +100,7 @@ export const prizes = (app: Elysia) => {
                 };
               }
 
+              set.status = 200;
               return {
                 success: true,
                 data: prize,
@@ -165,6 +167,7 @@ export const prizes = (app: Elysia) => {
               },
             });
 
+            set.status = 200;
             return {
               success: true,
               data: prizeFulfillment,
@@ -225,6 +228,7 @@ export const prizes = (app: Elysia) => {
               };
             }
 
+            set.status = 200;
             return {
               success: true,
               data: prizeFulfillment,
