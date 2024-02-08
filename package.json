@@ -18,16 +18,16 @@
   "dependencies": {
     "@elysiajs/cors": "^0.8.0",
     "@elysiajs/jwt": "^0.8.0",
-    "@prisma/client": "5.8.1",
+    "@prisma/client": "^5.9.1",
     "elysia": "latest",
     "elysia-rate-limit": "^2.0.1",
-    "pg": "^8.11.3",
-    "prisma": "^5.8.1"
+    "pg": "^8.11.3"
   },
   "devDependencies": {
     "@sanity/client": "^6.11.2",
     "@types/pg": "^8.10.9",
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "prisma": "^5.9.1"
   },
   "module": "src/index.js"
 }
