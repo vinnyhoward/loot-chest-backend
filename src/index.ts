@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { jwt } from "@elysiajs/jwt";
 import { cors } from "@elysiajs/cors";
-import { rateLimit } from "elysia-rate-limit";
+// import { rateLimit } from "elysia-rate-limit";
 import { isAuthenticated } from "./middleware/isAuthenticated";
 import { logs } from "./controller/logs";
 import { auth } from "./controller/auth";

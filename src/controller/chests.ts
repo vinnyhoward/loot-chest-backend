@@ -8,24 +8,6 @@ export const chests = (app: Elysia) => {
       app
         // @ts-ignore
         .get("/all", async ({ user, set, cms }) => {
-          if (!user) {
-            set.status = 401;
-            return {
-              success: false,
-              data: null,
-              message: "Unauthorized",
-            };
-          }
-
-          if (!user.isAdmin) {
-            set.status = 401;
-            return {
-              success: false,
-              data: null,
-              message: "Unauthorized Credentials",
-            };
-          }
-
           let chests: ChestResponse[] = [];
           try {
             chests = await cms.fetch('*[_type == "lootchest"]');
