@@ -64,8 +64,13 @@ export const auth = (app: Elysia) =>
               set.status = 200;
               return {
                 success: true,
+                data: {
+                  id: user.id,
+                  username: user.username,
+                  email: user.email,
+                },
                 token,
-                message: "Account created",
+                message: "Account created successfully",
               };
             } catch (error) {
               set.status = 500;
@@ -433,6 +438,97 @@ export const auth = (app: Elysia) =>
           {
             params: t.Object({
               id: t.String(),
+            }),
+          }
+        )
+        .post(
+          "/forgot-password",
+          // @ts-ignore
+          async ({ body, set, db, jwt }) => {
+            const { email } = body as User;
+            const user = await db.user.findUnique({
+              where: {
+                email,
+              },
+              select: {
+                id: true,
+                email: true,
+              },
+            });
+
+            if (!user) {
+              set.status = 400;
+              return {
+                success: false,
+                data: null,
+                message: "Invalid email address",
+              };
+            }
+
+            const token = await jwt.sign({
+              userId: user.id,
+            });
+
+            // TODO: send email with token
+            // ...
+
+            set.status = 200;
+            return {
+              success: true,
+              data: null,
+              message: "Password reset link sent to your email",
+            };
+          },
+          {
+            body: t.Object({
+              email: t.String(),
+            }),
+          }
+        )
+        .post(
+          "/reset-password",
+          // @ts-ignore
+          async ({ body, set, db, jwt }) => {
+            const { token, password } = body as {
+              token: string;
+              password: string;
+            };
+            console.log("body:", {
+              token,
+              password,
+            });
+            const { userId } = await jwt.verify(token);
+            const hashedPassword = await Bun.password.hash(password);
+            console.log("user id:", userId);
+            try {
+              await db.user.update({
+                where: {
+                  id: userId,
+                },
+                data: {
+                  password: hashedPassword,
+                },
+              });
+
+              set.status = 200;
+              return {
+                success: true,
+                data: null,
+                message: "Password reset successfully",
+              };
+            } catch (error) {
+              set.status = 500;
+              return {
+                success: false,
+                data: null,
+                message: "Something went wrong",
+              };
+            }
+          },
+          {
+            body: t.Object({
+              token: t.String(),
+              password: t.String(),
             }),
           }
         )
