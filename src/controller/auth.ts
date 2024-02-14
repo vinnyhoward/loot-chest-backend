@@ -457,18 +457,21 @@ export const auth = (app: Elysia) =>
             });
 
             if (!user) {
-              set.status = 400;
+              console.log("user not found");
+              // silently do nothing we don't want hackers
+              // to know if an email is registered or not
+              set.status = 200;
               return {
-                success: false,
+                success: true,
                 data: null,
-                message: "Invalid email address",
+                message: "Password reset link sent to your email",
               };
             }
 
             const token = await jwt.sign({
               userId: user.id,
             });
-
+            console.log("token:", token);
             // TODO: send email with token
             // ...
 
