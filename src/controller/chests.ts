@@ -1,6 +1,10 @@
 import { Elysia, t } from "elysia";
 import { UserChestInteraction, ChestResponse, Reward } from "../types";
-import { rollForPrize } from "../utils/rollForPrize";
+import {
+  calculateTierChances,
+  determineWinningTier,
+  selectRewardFromTier,
+} from "../utils/chestHelpers";
 
 export const chests = (app: Elysia) => {
   return app.group("/chests", (app) => {
@@ -40,8 +44,8 @@ export const chests = (app: Elysia) => {
               };
             }
 
-            const { id: chestId } = params as { id: string };
-            const { userId } = body as { userId: string };
+            const { id: chestId } = params;
+            const { userId } = body;
 
             if (user.id !== userId) {
               set.status = 403;
@@ -76,28 +80,60 @@ export const chests = (app: Elysia) => {
                 };
               }
 
-              const selectedReward: Reward =
-                chest.rewardList[
-                  Math.floor(Math.random() * chest.rewardList.length)
-                ];
+              const tierChances = calculateTierChances(
+                chest.rarityList.overallWinningPercentage
+              );
 
+              if (!tierChances) {
+                set.status = 500;
+                return {
+                  success: false,
+                  data: null,
+                  message:
+                    "An error occurred while trying to calculate tier chances. Please try again later.",
+                };
+              }
+              const [winningTier, rollValue] =
+                determineWinningTier(tierChances);
               let prize: UserChestInteraction[] = [];
-              const winPercentage = selectedReward.winPercentage * 100;
-              const [isWinner, rollValue] = rollForPrize(winPercentage);
+              console.log("winning tier", winningTier);
+              console.log("roll:", rollValue);
 
-              if (isWinner) {
-                prize = await db.PrizeLog.create({
-                  data: {
-                    userId,
-                    wonAt: new Date(),
-                    itemWon: selectedReward.rewardName,
-                    sanityChestId: chestId,
-                    rollValue,
-                    interactionId: interaction.id,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                  },
-                });
+              if (winningTier) {
+                const selectedReward = selectRewardFromTier(
+                  chest.rewardList,
+                  winningTier
+                );
+
+                if (selectedReward) {
+                  prize = await db.PrizeLog.create({
+                    data: {
+                      userId,
+                      wonAt: new Date(),
+                      itemWon: selectedReward.rewardName,
+                      sanityChestId: chestId,
+                      interactionId: interaction.id,
+                      createdAt: new Date(),
+                      updatedAt: new Date(),
+                      rollValue,
+                    },
+                  });
+
+                  const lootChestKey = selectedReward._key;
+                  const sanityRewardListKey = `rewardList[_key == "${lootChestKey}"].itemInventory`;
+                  await cms
+                    .transaction([
+                      {
+                        patch: {
+                          id: chestId,
+                          dec: {
+                            [sanityRewardListKey]: 1,
+                          },
+                        },
+                      },
+                    ])
+                    .commit();
+                }
               }
 
               set.status = 200;

@@ -68,14 +68,25 @@ export type ChestResponse = {
   chestModel: string;
   chestIcon: ChestIcon;
   createdBy: string;
+  rarityList: {
+    overallWinningPercentage: number;
+  };
   _id: string;
 };
+
+export enum ItemRarity {
+  Common = "common",
+  Uncommon = "uncommon",
+  Rare = "rare",
+  Legendary = "legendary",
+  Divine = "divine",
+}
 
 export type Reward = {
   rewardImage: RewardImage;
   formFields: string[];
   _key: string;
-  winPercentage: number;
+  itemRarity: ItemRarity;
   rewardName: string;
   itemInventory: number;
   _type: string;
