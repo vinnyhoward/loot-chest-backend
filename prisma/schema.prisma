@@ -23,16 +23,42 @@ model User {
   chestInteractions UserChestInteraction[]
   prizeLogs         PrizeLog[]
   prizeFulfillments PrizeFulfillment[]
+  UserKey           UserKey[]
+}
+
+model UserKey {
+  // May add different key types for different chests in the future
+  id        String   @id @default(cuid())
+  userId    String
+  awardedAt DateTime @default(now())
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id])
+  chestInteractions UserChestInteraction[]
+}
+
+model SanityChest {
+  id          String                 @id @default(cuid())
+  name        String
+  description String
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  chestInteractions UserChestInteraction[]
+  prizeLogs         PrizeLog[]
 }
 
 model UserChestInteraction {
   id            String   @id @default(cuid())
   userId        String   
+  userKeyId       String
   sanityChestId String
   openedAt      DateTime @default(now())
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   User          User     @relation(fields: [userId], references: [id])
+  SanityChest   SanityChest @relation(fields: [sanityChestId], references: [id])
+  UserKey       UserKey? @relation(fields: [userKeyId], references: [id])
 }
 
 model PrizeLog {
@@ -48,6 +74,7 @@ model PrizeLog {
   updatedAt          DateTime          @updatedAt
   User               User              @relation(fields: [userId], references: [id])
   prizeFulfillment   PrizeFulfillment? @relation(fields: [prizeFulfillmentId], references: [id])
+  SanityChest        SanityChest       @relation(fields: [sanityChestId], references: [id])
 }
 
 model PrizeFulfillment {
@@ -68,3 +95,4 @@ model PrizeFulfillment {
   PrizeLog            PrizeLog?
   User                User      @relation(fields: [userId], references: [id])
 }
+
