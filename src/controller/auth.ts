@@ -535,5 +535,53 @@ export const auth = (app: Elysia) =>
             }),
           }
         )
+        //@ts-ignore
+        .get("/:id/keys", async ({ db, set, user, params }) => {
+          const { id } = params as { id: string };
+          if (!user) {
+            set.status = 401;
+            return {
+              success: false,
+              data: null,
+              message: "Unauthorized",
+            };
+          }
+
+          if (user.id !== id) {
+            set.status = 401;
+            return {
+              success: false,
+              data: null,
+              message: "Unauthorized Access",
+            };
+          }
+
+          try {
+            const keys = await db.userKey.findMany({
+              where: {
+                userId: id,
+                usedAt: null,
+              },
+              select: {
+                id: true,
+                awardedAt: true,
+              },
+            });
+
+            set.status = 200;
+            return {
+              success: true,
+              data: keys,
+              message: "Keys fetched successfully",
+            };
+          } catch (error) {
+            set.status = 500;
+            return {
+              success: false,
+              data: null,
+              message: "Something went wrong.",
+            };
+          }
+        })
     );
   });

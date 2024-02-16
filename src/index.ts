@@ -7,6 +7,7 @@ import { logs } from "./controller/logs";
 import { auth } from "./controller/auth";
 import { chests } from "./controller/chests";
 import { prizes } from "./controller/prizes";
+import { keys } from "./controller/keys";
 import { sanityClient } from "./services/sanity";
 import { jwtConfig } from "./services/jwt";
 import { prisma } from "./services/prisma";
@@ -23,6 +24,7 @@ const app = new Elysia()
   .use(auth)
   .use(prizes)
   .use(chests)
+  .use(keys)
   .listen(process.env.API_PORT || 8020);
 
 console.log(

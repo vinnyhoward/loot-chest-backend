@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "node_modules/.prisma/client"
+  provider      = "prisma-client-js"
+  output        = "node_modules/.prisma/client"
   binaryTargets = ["native", "linux-arm64-openssl-3.0.x", "debian-openssl-3.0.x", "debian-openssl-1.1.x", "linux-musl", "linux-musl-openssl-3.0.x"]
 }
 
@@ -28,42 +28,43 @@ model User {
 
 model UserKey {
   // May add different key types for different chests in the future
-  id        String   @id @default(cuid())
-  userId    String
-  awardedAt DateTime @default(now())
-  usedAt    DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  User      User     @relation(fields: [userId], references: [id])
+  id                String                 @id @default(cuid())
+  userId            String
+  awardedAt         DateTime               @default(now())
+  usedAt            DateTime?
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  User              User?                  @relation(fields: [userId], references: [id])
   chestInteractions UserChestInteraction[]
 }
 
-model SanityChest {
-  id          String                 @id @default(cuid())
-  name        String
-  description String
-  createdAt   DateTime               @default(now())
-  updatedAt   DateTime               @updatedAt
-  chestInteractions UserChestInteraction[]
-  prizeLogs         PrizeLog[]
-}
+// TODO: Commented out for now. May or may not use this model
+// model SanityChest {
+//   id                String                 @id @default(cuid())
+//   name              String
+//   description       String
+//   createdAt         DateTime               @default(now())
+//   updatedAt         DateTime               @updatedAt
+//   chestInteractions UserChestInteraction[]
+//   prizeLogs         PrizeLog[]
+// }
 
 model UserChestInteraction {
-  id            String   @id @default(cuid())
-  userId        String   
-  userKeyId       String
-  sanityChestId String
-  openedAt      DateTime @default(now())
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  User          User     @relation(fields: [userId], references: [id])
-  SanityChest   SanityChest @relation(fields: [sanityChestId], references: [id])
-  UserKey       UserKey? @relation(fields: [userKeyId], references: [id])
+  id            String      @id @default(cuid())
+  userId        String
+  userKeyId     String
+  sanityChestId String?
+  openedAt      DateTime    @default(now())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  User          User?       @relation(fields: [userId], references: [id])
+  // SanityChest   SanityChest? @relation(fields: [sanityChestId], references: [id])
+  UserKey       UserKey?    @relation(fields: [userKeyId], references: [id])
 }
 
 model PrizeLog {
   id                 String            @id @default(cuid())
-  userId             String            
+  userId             String
   prizeFulfillmentId String?           @unique
   wonAt              DateTime          @default(now())
   itemWon            String
@@ -74,12 +75,12 @@ model PrizeLog {
   updatedAt          DateTime          @updatedAt
   User               User              @relation(fields: [userId], references: [id])
   prizeFulfillment   PrizeFulfillment? @relation(fields: [prizeFulfillmentId], references: [id])
-  SanityChest        SanityChest       @relation(fields: [sanityChestId], references: [id])
+  // SanityChest        SanityChest?       @relation(fields: [sanityChestId], references: [id])
 }
 
 model PrizeFulfillment {
   id                  String    @id @default(cuid())
-  userId              String  
+  userId              String
   firstName           String?
   lastName            String?
   phoneNumber         String?
@@ -93,6 +94,5 @@ model PrizeFulfillment {
   updatedAt           DateTime  @updatedAt
   cryptoWalletAddress String?
   PrizeLog            PrizeLog?
-  User                User      @relation(fields: [userId], references: [id])
+  User                User?      @relation(fields: [userId], references: [id])
 }
-

@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { UserChestInteraction, ChestResponse, Reward } from "../types";
+import { UserChestInteraction, ChestResponse, Reward, UserKey } from "../types";
 import {
   calculateTierChances,
   determineWinningTier,
@@ -45,7 +45,16 @@ export const chests = (app: Elysia) => {
             }
 
             const { id: chestId } = params;
-            const { userId } = body;
+            const { userId, keyId } = body;
+
+            if (!userId || !keyId) {
+              set.status = 400;
+              return {
+                success: false,
+                data: null,
+                message: "userId and keyId are required.",
+              };
+            }
 
             if (user.id !== userId) {
               set.status = 403;
@@ -56,12 +65,20 @@ export const chests = (app: Elysia) => {
                   "Access forbidden. You cannot open a chest on behalf of another user.",
               };
             }
-
+            console.log("1", {
+              userId,
+              keyId,
+              chestId,
+            });
             try {
-              const interaction = await db.UserChestInteraction.create({
+              const interaction = await db.userChestInteraction.create({
                 data: {
-                  userId,
-                  sanityChestId: chestId,
+                  User: {
+                    connect: { id: userId },
+                  },
+                  UserKey: {
+                    connect: { id: keyId },
+                  },
                   openedAt: new Date(),
                   updatedAt: new Date(),
                 },
@@ -96,6 +113,8 @@ export const chests = (app: Elysia) => {
               const [winningTier, rollValue] =
                 determineWinningTier(tierChances);
               let prize: UserChestInteraction[] = [];
+              let keys: UserKey[] = [];
+
               console.log("winning tier", winningTier);
               console.log("roll:", rollValue);
 
@@ -106,6 +125,7 @@ export const chests = (app: Elysia) => {
                 );
 
                 if (selectedReward) {
+                  console.log("2");
                   prize = await db.PrizeLog.create({
                     data: {
                       userId,
@@ -116,6 +136,33 @@ export const chests = (app: Elysia) => {
                       createdAt: new Date(),
                       updatedAt: new Date(),
                       rollValue,
+                    },
+                  });
+                  console.log("3");
+                  const userKey = await db.userKey.findFirst({
+                    where: {
+                      id: keyId,
+                      userId: userId,
+                      usedAt: null,
+                    },
+                  });
+
+                  if (!userKey) {
+                    set.status = 400;
+                    return {
+                      success: false,
+                      data: null,
+                      message: "Invalid or already used key.",
+                    };
+                  }
+
+                  console.log("4");
+                  keys = await db.userKey.update({
+                    where: {
+                      id: keyId,
+                    },
+                    data: {
+                      usedAt: new Date(),
                     },
                   });
 
@@ -139,7 +186,7 @@ export const chests = (app: Elysia) => {
               set.status = 200;
               return {
                 success: true,
-                data: { interaction, prize },
+                data: { interaction, prize, keys },
                 message: "Chest opened successfully.",
               };
             } catch (error) {
@@ -155,6 +202,7 @@ export const chests = (app: Elysia) => {
           {
             body: t.Object({
               userId: t.String(),
+              keyId: t.String(),
             }),
             params: t.Object({
               id: t.String(),
@@ -173,7 +221,7 @@ export const chests = (app: Elysia) => {
           }
 
           try {
-            const interactions = await db.UserChestInteraction.findMany({
+            const interactions = await db.userChestInteraction.findMany({
               where: {
                 userId: user.id,
               },

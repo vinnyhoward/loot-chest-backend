@@ -1,4 +1,4 @@
-export type User = {
+export interface User {
   id: string;
   email: string;
   username: string;
@@ -9,22 +9,47 @@ export type User = {
   chestInteractions: UserChestInteraction[];
   prizeLogs: PrizeLog[];
   prizeFulfillments: PrizeFulfillment[];
-};
+  UserKey: UserKey[];
+}
 
-export type UserChestInteraction = {
+export interface UserKey {
   id: string;
   userId: string;
+  awardedAt: Date;
+  usedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  User: User;
+  chestInteractions: UserChestInteraction[];
+}
+
+export interface SanityChest {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: Date;
+  updatedAt: Date;
+  chestInteractions: UserChestInteraction[];
+  prizeLogs: PrizeLog[];
+}
+
+export interface UserChestInteraction {
+  id: string;
+  userId: string;
+  userKeyId: string;
   sanityChestId: string;
   openedAt: Date;
   createdAt: Date;
   updatedAt: Date;
   User: User;
-};
+  SanityChest: SanityChest;
+  UserKey: UserKey | null;
+}
 
-export type PrizeLog = {
+export interface PrizeLog {
   id: string;
   userId: string;
-  prizeFulfillmentId?: string;
+  prizeFulfillmentId: string | null;
   wonAt: Date;
   itemWon: string;
   sanityChestId: string;
@@ -33,27 +58,28 @@ export type PrizeLog = {
   createdAt: Date;
   updatedAt: Date;
   User: User;
-  prizeFulfillment?: PrizeFulfillment;
-};
+  prizeFulfillment: PrizeFulfillment | null;
+  SanityChest: SanityChest;
+}
 
-export type PrizeFulfillment = {
+export interface PrizeFulfillment {
   id: string;
   userId: string;
-  firstName?: string;
-  lastName?: string;
-  phoneNumber?: string;
-  email?: string;
-  address?: string;
-  country?: string;
-  state?: string;
-  city?: string;
-  zip?: string;
+  firstName: string | null;
+  lastName: string | null;
+  phoneNumber: string | null;
+  email: string | null;
+  address: string | null;
+  country: string | null;
+  state: string | null;
+  city: string | null;
+  zip: string | null;
   createdAt: Date;
   updatedAt: Date;
-  cryptoWalletAddress?: string;
-  PrizeLog?: PrizeLog;
+  cryptoWalletAddress: string | null;
+  PrizeLog: PrizeLog | null;
   User: User;
-};
+}
 
 export type ChestResponse = {
   chestDescription: string;
