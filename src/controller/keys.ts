@@ -1,4 +1,5 @@
 import { Elysia, t } from "elysia";
+import { UserKey } from "../types";
 
 export const keys = (app: Elysia) => {
   return app.group(
@@ -39,16 +40,28 @@ export const keys = (app: Elysia) => {
                 });
               }
 
+              const keys = await db.userKey.findMany({
+                where: {
+                  userId: user.id,
+                  userAt: null,
+                },
+                select: {
+                  id: true,
+                },
+              });
+
               set.status = 200;
               return {
                 success: true,
-                data: null,
+                awarded: true,
+                data: keys,
                 message: "3 keys have been successfully awarded.",
               };
             } else {
               set.status = 200;
               return {
                 success: false,
+                awarded: false,
                 data: null,
                 message: "Keys have already been awarded today.",
               };
