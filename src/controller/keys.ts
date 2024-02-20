@@ -43,7 +43,7 @@ export const keys = (app: Elysia) => {
               const keys = await db.userKey.findMany({
                 where: {
                   userId: user.id,
-                  userAt: null,
+                  usedAt: null,
                 },
                 select: {
                   id: true,
