@@ -73,14 +73,16 @@ model PrizeLog {
   rollValue          Float
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
-  User               User              @relation(fields: [userId], references: [id])
-  ChestInteraction   UserChestInteraction @relation(fields: [chestInteractionId], references: [id])
+  user               User              @relation(fields: [userId], references: [id])
+  chestInteraction   UserChestInteraction @relation(fields: [chestInteractionId], references: [id])
+  prizeFulfillment   PrizeFulfillment?
   // SanityChest        SanityChest?       @relation(fields: [sanityChestId], references: [id])
 }
 
 model PrizeFulfillment {
   id                  String    @id @default(cuid())
   sanityRewardId      String
+  prizeLogId          String    @unique
   claimedAt           DateTime  @default(now())
   claimed             Boolean   @default(false)
   userId              String
@@ -97,4 +99,5 @@ model PrizeFulfillment {
   updatedAt           DateTime  @updatedAt
   cryptoWalletAddress String?
   user                User?      @relation(fields: [userId], references: [id])
+  prizeLog            PrizeLog?  @relation(fields: [prizeLogId], references: [id])
 }

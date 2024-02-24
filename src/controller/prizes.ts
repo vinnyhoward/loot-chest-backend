@@ -18,7 +18,7 @@ export const prizes = (app: Elysia) => {
 
           let prizes: PrizeLog[] = [];
           try {
-            prizes = await db.PrizeLog.findMany({
+            prizes = await db.prizeLog.findMany({
               where: {
                 userId: user.id,
               },
@@ -133,6 +133,7 @@ export const prizes = (app: Elysia) => {
           }
 
           const {
+            prizeLogId,
             sanityRewardId,
             firstName,
             lastName,
@@ -150,9 +151,20 @@ export const prizes = (app: Elysia) => {
 
           let prizeFulfillment: PrizeFulfillment | null = null;
           try {
-            const doesPrizeIdExist = await db.SanityReward.findUnique({
-              where: { sanityRewardId: sanityRewardId },
-              select: { id: true, claimed: true, claimedAt: true },
+            const doesPrizeIdExist = await db.prizeFulfillment.findUnique({
+              where: {
+                sanityRewardId: sanityRewardId,
+                userId: user.id,
+                claimed: false,
+                prizeLogId,
+              },
+              select: {
+                id: true,
+                claimed: true,
+                claimedAt: true,
+                sanityRewardId: true,
+                prizeLogId: true,
+              },
             });
 
             if (doesPrizeIdExist.claimed) {
@@ -164,12 +176,37 @@ export const prizes = (app: Elysia) => {
               };
             }
 
-            prizeFulfillment = await db.PrizeFulfillment.create({
+            console.log("sanityRewardId", sanityRewardId);
+            console.log("doesPrizeIdExist.sanityRewardId", doesPrizeIdExist);
+            if (doesPrizeIdExist.sanityRewardId !== sanityRewardId) {
+              set.status = 404;
+              return {
+                success: false,
+                data: null,
+                message: "Prize does not exist.",
+              };
+            }
+
+            if (doesPrizeIdExist.prizeLogId !== prizeLogId) {
+              set.status = 404;
+              return {
+                success: false,
+                data: null,
+                message: "Prize log does not exist.",
+              };
+            }
+            const today = new Date();
+            prizeFulfillment = await db.prizeFulfillment.update({
+              where: {
+                id: doesPrizeIdExist.id,
+              },
               data: {
                 sanityRewardId,
-                claimedAt: Date.now(),
+                claimedAt: today,
                 claimed: true,
-                userId: user.id,
+                user: {
+                  connect: { id: user.id },
+                },
                 firstName,
                 lastName,
                 phoneNumber,

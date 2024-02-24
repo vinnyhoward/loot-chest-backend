@@ -9,79 +9,69 @@ export interface User {
   chestInteractions: UserChestInteraction[];
   prizeLogs: PrizeLog[];
   prizeFulfillments: PrizeFulfillment[];
-  UserKey: UserKey[];
+  userKeys: UserKey[];
 }
 
 export interface UserKey {
   id: string;
   userId: string;
   awardedAt: Date;
-  usedAt: Date | null;
+  usedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
-  User: User;
+  user?: User;
   chestInteractions: UserChestInteraction[];
-}
-
-export interface SanityChest {
-  id: string;
-  name: string;
-  description: string;
-  createdAt: Date;
-  updatedAt: Date;
-  chestInteractions: UserChestInteraction[];
-  prizeLogs: PrizeLog[];
 }
 
 export interface UserChestInteraction {
   id: string;
   userId: string;
   userKeyId: string;
-  sanityChestId: string;
+  sanityChestId?: string;
   openedAt: Date;
   createdAt: Date;
   updatedAt: Date;
-  User: User;
-  SanityChest: SanityChest;
-  UserKey: UserKey | null;
+  user?: User;
+  userKey?: UserKey;
+  prizeLogs: PrizeLog[];
 }
 
 export interface PrizeLog {
   id: string;
   userId: string;
-  prizeFulfillmentId: string | null;
+  chestInteractionId: string;
   wonAt: Date;
   itemWon: string;
   sanityChestId: string;
   rollValue: number;
-  interactionId: string;
   createdAt: Date;
   updatedAt: Date;
-  User: User;
-  prizeFulfillment: PrizeFulfillment | null;
-  SanityChest: SanityChest;
+  user: User;
+  chestInteraction: UserChestInteraction;
+  prizeFulfillment?: PrizeFulfillment;
 }
 
 export interface PrizeFulfillment {
   id: string;
   sanityRewardId: string;
-  claimedAt: Date | null;
+  prizeLogId: string;
+  claimedAt: Date;
   claimed: boolean;
   userId: string;
-  firstName: string | null;
-  lastName: string | null;
-  phoneNumber: string | null;
-  email: string | null;
-  address: string | null;
-  country: string | null;
-  state: string | null;
-  city: string | null;
-  zip: string | null;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  email?: string;
+  address?: string;
+  country?: string;
+  state?: string;
+  city?: string;
+  zip?: string;
   createdAt: Date;
   updatedAt: Date;
-  cryptoWalletAddress: string | null;
-  PrizeLog: PrizeLog | null;
-  User: User;
+  cryptoWalletAddress?: string;
+  user?: User;
+  prizeLog?: PrizeLog;
 }
 
 export type ChestResponse = {

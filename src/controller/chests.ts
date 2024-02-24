@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { UserChestInteraction, ChestResponse, Reward, UserKey } from "../types";
+import { ChestResponse, Reward, UserKey, PrizeFulfillment } from "../types";
 import {
   calculateTierChances,
   determineWinningTier,
@@ -69,10 +69,10 @@ export const chests = (app: Elysia) => {
             try {
               const interaction = await db.userChestInteraction.create({
                 data: {
-                  User: {
+                  user: {
                     connect: { id: userId },
                   },
-                  UserKey: {
+                  userKey: {
                     connect: { id: keyId },
                   },
                   openedAt: new Date(),
@@ -108,7 +108,8 @@ export const chests = (app: Elysia) => {
               }
               const [winningTier, rollValue] =
                 determineWinningTier(tierChances);
-              let prize: UserChestInteraction[] = [];
+              let prize: PrizeFulfillment | null = null;
+              let prizeFulfillment: PrizeFulfillment | null = null;
               let keys: UserKey[] = [];
 
               console.log("winning tier", winningTier);
@@ -121,27 +122,37 @@ export const chests = (app: Elysia) => {
                 );
 
                 if (selectedReward) {
-                  prize = await db.PrizeLog.create({
+                  prize = await db.prizeLog.create({
                     data: {
-                      userId,
+                      user: {
+                        connect: { id: userId },
+                      },
                       wonAt: new Date(),
                       itemWon: selectedReward.rewardName,
                       sanityChestId: chestId,
-                      interactionId: interaction.id,
+                      chestInteraction: {
+                        connect: { id: interaction.id },
+                      },
                       createdAt: new Date(),
                       updatedAt: new Date(),
                       rollValue,
                     },
                   });
 
-                  // const prizeFulfillment = await db.prizeFulfillment.create({
-                  //   data: {
-                  //     userId,
-                  //     claimed: false,
-                  //     createdAt: new Date(),
-                  //     updatedAt: new Date(),
-                  //   },
-                  // });
+                  prizeFulfillment = await db.prizeFulfillment.create({
+                    data: {
+                      user: {
+                        connect: { id: userId },
+                      },
+                      prizeLog: {
+                        connect: { id: prize!.id },
+                      },
+                      sanityRewardId: selectedReward._key,
+                      claimed: false,
+                      createdAt: new Date(),
+                      updatedAt: new Date(),
+                    },
+                  });
 
                   const userKey = await db.userKey.findFirst({
                     where: {
@@ -186,10 +197,19 @@ export const chests = (app: Elysia) => {
                 }
               }
 
+              keys = await db.userKey.update({
+                where: {
+                  id: keyId,
+                },
+                data: {
+                  usedAt: new Date(),
+                },
+              });
+
               set.status = 200;
               return {
                 success: true,
-                data: { interaction, prize, keys },
+                data: { interaction, prize, keys, prizeFulfillment },
                 message: "Chest opened successfully.",
               };
             } catch (error) {
