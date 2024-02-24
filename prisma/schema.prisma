@@ -23,7 +23,7 @@ model User {
   chestInteractions UserChestInteraction[]
   prizeLogs         PrizeLog[]
   prizeFulfillments PrizeFulfillment[]
-  UserKey           UserKey[]
+  userKey           UserKey[]
 }
 
 model UserKey {
@@ -57,29 +57,32 @@ model UserChestInteraction {
   openedAt      DateTime    @default(now())
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
-  User          User?       @relation(fields: [userId], references: [id])
+  user          User?       @relation(fields: [userId], references: [id])
+  userKey       UserKey?    @relation(fields: [userKeyId], references: [id])
+  prizeLogs     PrizeLog[]
   // SanityChest   SanityChest? @relation(fields: [sanityChestId], references: [id])
-  UserKey       UserKey?    @relation(fields: [userKeyId], references: [id])
 }
 
 model PrizeLog {
   id                 String            @id @default(cuid())
   userId             String
-  prizeFulfillmentId String?           @unique
+  chestInteractionId String            @unique
   wonAt              DateTime          @default(now())
   itemWon            String
   sanityChestId      String
   rollValue          Float
-  interactionId      String
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
   User               User              @relation(fields: [userId], references: [id])
-  prizeFulfillment   PrizeFulfillment? @relation(fields: [prizeFulfillmentId], references: [id])
+  ChestInteraction   UserChestInteraction @relation(fields: [chestInteractionId], references: [id])
   // SanityChest        SanityChest?       @relation(fields: [sanityChestId], references: [id])
 }
 
 model PrizeFulfillment {
   id                  String    @id @default(cuid())
+  sanityRewardId      String
+  claimedAt           DateTime  @default(now())
+  claimed             Boolean   @default(false)
   userId              String
   firstName           String?
   lastName            String?
@@ -93,6 +96,5 @@ model PrizeFulfillment {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   cryptoWalletAddress String?
-  PrizeLog            PrizeLog?
-  User                User?      @relation(fields: [userId], references: [id])
+  user                User?      @relation(fields: [userId], references: [id])
 }

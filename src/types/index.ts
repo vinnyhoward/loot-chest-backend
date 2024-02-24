@@ -64,6 +64,9 @@ export interface PrizeLog {
 
 export interface PrizeFulfillment {
   id: string;
+  sanityRewardId: string;
+  claimedAt: Date | null;
+  claimed: boolean;
   userId: string;
   firstName: string | null;
   lastName: string | null;

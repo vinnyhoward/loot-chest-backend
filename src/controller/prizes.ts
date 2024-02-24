@@ -133,6 +133,7 @@ export const prizes = (app: Elysia) => {
           }
 
           const {
+            sanityRewardId,
             firstName,
             lastName,
             phoneNumber,
@@ -149,8 +150,25 @@ export const prizes = (app: Elysia) => {
 
           let prizeFulfillment: PrizeFulfillment | null = null;
           try {
+            const doesPrizeIdExist = await db.SanityReward.findUnique({
+              where: { sanityRewardId: sanityRewardId },
+              select: { id: true, claimed: true, claimedAt: true },
+            });
+
+            if (doesPrizeIdExist.claimed) {
+              set.status = 404;
+              return {
+                success: false,
+                data: null,
+                message: "Prize has already been claimed.",
+              };
+            }
+
             prizeFulfillment = await db.PrizeFulfillment.create({
               data: {
+                sanityRewardId,
+                claimedAt: Date.now(),
+                claimed: true,
                 userId: user.id,
                 firstName,
                 lastName,

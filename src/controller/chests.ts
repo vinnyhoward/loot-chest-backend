@@ -65,11 +65,7 @@ export const chests = (app: Elysia) => {
                   "Access forbidden. You cannot open a chest on behalf of another user.",
               };
             }
-            console.log("1", {
-              userId,
-              keyId,
-              chestId,
-            });
+
             try {
               const interaction = await db.userChestInteraction.create({
                 data: {
@@ -125,7 +121,6 @@ export const chests = (app: Elysia) => {
                 );
 
                 if (selectedReward) {
-                  console.log("2");
                   prize = await db.PrizeLog.create({
                     data: {
                       userId,
@@ -138,7 +133,16 @@ export const chests = (app: Elysia) => {
                       rollValue,
                     },
                   });
-                  console.log("3");
+
+                  // const prizeFulfillment = await db.prizeFulfillment.create({
+                  //   data: {
+                  //     userId,
+                  //     claimed: false,
+                  //     createdAt: new Date(),
+                  //     updatedAt: new Date(),
+                  //   },
+                  // });
+
                   const userKey = await db.userKey.findFirst({
                     where: {
                       id: keyId,
@@ -156,7 +160,6 @@ export const chests = (app: Elysia) => {
                     };
                   }
 
-                  console.log("4");
                   keys = await db.userKey.update({
                     where: {
                       id: keyId,
