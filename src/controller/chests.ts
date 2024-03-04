@@ -197,7 +197,7 @@ export const chests = (app: Elysia) => {
                 }
               }
 
-              keys = await db.userKey.update({
+              await db.userKey.update({
                 where: {
                   id: keyId,
                 },
@@ -206,9 +206,20 @@ export const chests = (app: Elysia) => {
                 },
               });
 
+              keys = await db.userKey.findMany({
+                where: {
+                  userId: userId,
+                  usedAt: null,
+                },
+                select: {
+                  id: true,
+                },
+              });
+
               set.status = 200;
               return {
                 success: true,
+                isWinner: !!prize,
                 data: { interaction, prize, keys, prizeFulfillment },
                 message: "Chest opened successfully.",
               };

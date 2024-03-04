@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { PrizeLog, PrizeFulfillment } from "../types";
+import { PrizeLog, PrizeFulfillment, ChestResponse } from "../types";
 
 export const prizes = (app: Elysia) => {
   return app.group("/prizes", (app) => {
@@ -150,6 +150,11 @@ export const prizes = (app: Elysia) => {
           } = body as PrizeFulfillment;
 
           let prizeFulfillment: PrizeFulfillment | null = null;
+          console.log("prize exists", {
+            sanityRewardId: sanityRewardId,
+            userId: user.id,
+            prizeLogId,
+          });
           try {
             const doesPrizeIdExist = await db.prizeFulfillment.findUnique({
               where: {
@@ -167,7 +172,16 @@ export const prizes = (app: Elysia) => {
               },
             });
 
-            if (doesPrizeIdExist.claimed) {
+            if (!doesPrizeIdExist) {
+              set.status = 404;
+              return {
+                success: false,
+                data: null,
+                message: "Prize does not exist.",
+              };
+            }
+            console.log("does prize id exist", doesPrizeIdExist);
+            if (doesPrizeIdExist && doesPrizeIdExist.claimed) {
               set.status = 404;
               return {
                 success: false,
@@ -176,8 +190,6 @@ export const prizes = (app: Elysia) => {
               };
             }
 
-            console.log("sanityRewardId", sanityRewardId);
-            console.log("doesPrizeIdExist.sanityRewardId", doesPrizeIdExist);
             if (doesPrizeIdExist.sanityRewardId !== sanityRewardId) {
               set.status = 404;
               return {
@@ -229,6 +241,7 @@ export const prizes = (app: Elysia) => {
               message: "Successfully updated created prize fulfillment",
             };
           } catch (error) {
+            console.log("hey", error);
             set.status = 500;
             return {
               success: false,
@@ -295,6 +308,77 @@ export const prizes = (app: Elysia) => {
               success: false,
               data: null,
               message: "An error occurred while fetching the user's prize.",
+            };
+          }
+        })
+        // @ts-ignore
+        .get("/all", async ({ user, set, db, query }) => {
+          if (!user) {
+            set.status = 401;
+            return {
+              success: false,
+              data: null,
+              message: "Access denied. Please log in to proceed.",
+            };
+          }
+
+          const page: number = parseInt(query.page as string) || 1;
+          const limit: number = parseInt(query.limit as string) || 10;
+          const skip: number = (page - 1) * limit;
+
+          let prizes: PrizeLog[] = [];
+          try {
+            prizes = await db.prizeLog.findMany({
+              select: {
+                id: true,
+                wonAt: true,
+                itemWon: true,
+                createdAt: true,
+                updatedAt: true,
+                sanityChestId: true,
+                user: {
+                  select: {
+                    username: true,
+                  },
+                },
+              },
+              take: limit,
+              skip: skip,
+            });
+
+            let chests: ChestResponse[] = [];
+            try {
+              chests = await cms.fetch('*[_type == "lootchest"]');
+            } catch {
+              set.status = 500;
+              return {
+                success: false,
+                data: null,
+                message: "An error occurred while fetching chests.",
+              };
+            }
+
+            const totalCount = await db.prizeLog.count();
+            const totalPages = Math.ceil(totalCount / limit);
+
+            set.status = 200;
+            return {
+              success: true,
+              data: prizes,
+              message: "Successfully fetched all prizes",
+              pagination: {
+                currentPage: page,
+                limit,
+                totalPages,
+                totalCount,
+              },
+            };
+          } catch (error) {
+            set.status = 500;
+            return {
+              success: false,
+              data: null,
+              message: "An error occurred while fetching all prizes.",
             };
           }
         })
