@@ -150,11 +150,6 @@ export const prizes = (app: Elysia) => {
           } = body as PrizeFulfillment;
 
           let prizeFulfillment: PrizeFulfillment | null = null;
-          console.log("prize exists", {
-            sanityRewardId: sanityRewardId,
-            userId: user.id,
-            prizeLogId,
-          });
           try {
             const doesPrizeIdExist = await db.prizeFulfillment.findUnique({
               where: {
@@ -180,7 +175,7 @@ export const prizes = (app: Elysia) => {
                 message: "Prize does not exist.",
               };
             }
-            console.log("does prize id exist", doesPrizeIdExist);
+
             if (doesPrizeIdExist && doesPrizeIdExist.claimed) {
               set.status = 404;
               return {
@@ -241,7 +236,6 @@ export const prizes = (app: Elysia) => {
               message: "Successfully updated created prize fulfillment",
             };
           } catch (error) {
-            console.log("hey", error);
             set.status = 500;
             return {
               success: false,

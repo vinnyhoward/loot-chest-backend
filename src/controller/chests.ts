@@ -112,9 +112,6 @@ export const chests = (app: Elysia) => {
               let prizeFulfillment: PrizeFulfillment | null = null;
               let keys: UserKey[] = [];
 
-              console.log("winning tier", winningTier);
-              console.log("roll:", rollValue);
-
               if (winningTier) {
                 const selectedReward = selectRewardFromTier(
                   chest.rewardList,
@@ -130,6 +127,7 @@ export const chests = (app: Elysia) => {
                       wonAt: new Date(),
                       itemWon: selectedReward.rewardName,
                       sanityChestId: chestId,
+                      rewardImageRef: selectedReward.rewardImage.asset._ref,
                       chestInteraction: {
                         connect: { id: interaction.id },
                       },

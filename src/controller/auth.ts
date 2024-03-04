@@ -457,7 +457,6 @@ export const auth = (app: Elysia) =>
             });
 
             if (!user) {
-              console.log("user not found");
               // silently do nothing we don't want hackers
               // to know if an email is registered or not
               set.status = 200;
@@ -471,9 +470,6 @@ export const auth = (app: Elysia) =>
             const token = await jwt.sign({
               userId: user.id,
             });
-            console.log("token:", token);
-            // TODO: send email with token
-            // ...
 
             set.status = 200;
             return {
@@ -496,13 +492,10 @@ export const auth = (app: Elysia) =>
               token: string;
               password: string;
             };
-            console.log("body:", {
-              token,
-              password,
-            });
+
             const { userId } = await jwt.verify(token);
             const hashedPassword = await Bun.password.hash(password);
-            console.log("user id:", userId);
+
             try {
               await db.user.update({
                 where: {

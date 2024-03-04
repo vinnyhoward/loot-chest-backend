@@ -70,6 +70,7 @@ model PrizeLog {
   wonAt              DateTime          @default(now())
   itemWon            String
   sanityChestId      String
+  rewardImageRef     String
   rollValue          Float
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt

@@ -16,7 +16,6 @@ export function determineWinningTier(
   tierChances: Record<ItemRarity, number>
 ): [ItemRarity | null, number] {
   const roll = Math.random();
-  console.log("tier chances", tierChances);
 
   for (const tierKey of Object.keys(tierChances) as ItemRarity[]) {
     const chance = tierChances[tierKey];
@@ -34,11 +33,8 @@ export function selectRewardFromTier(
   winningTier: ItemRarity
 ): Reward | null {
   const rewardsInTier = rewardList.filter((reward) => {
-    console.log("reward", reward);
-    console.log("winning tier", winningTier);
     return reward.itemRarity === winningTier;
   });
-  console.log("rewards in tier", rewardsInTier);
 
   if (rewardsInTier.length === 0) return null;
 
