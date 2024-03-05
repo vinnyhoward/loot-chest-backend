@@ -24,13 +24,21 @@ export const prizes = (app: Elysia) => {
               },
               select: {
                 id: true,
-                prizeFulfillmentId: true,
                 wonAt: true,
                 itemWon: true,
                 sanityChestId: true,
-                interactionId: true,
+                chestInteractionId: true,
+                rewardImageRef: true,
                 createdAt: true,
                 updatedAt: true,
+                prizeFulfillment: {
+                  select: {
+                    id: true,
+                    claimed: true,
+                    claimedAt: true,
+                    sanityRewardId: true,
+                  },
+                },
               },
             });
 
@@ -306,16 +314,7 @@ export const prizes = (app: Elysia) => {
           }
         })
         // @ts-ignore
-        .get("/all", async ({ user, set, db, query }) => {
-          if (!user) {
-            set.status = 401;
-            return {
-              success: false,
-              data: null,
-              message: "Access denied. Please log in to proceed.",
-            };
-          }
-
+        .get("/all", async ({ set, db, query }) => {
           const page: number = parseInt(query.page as string) || 1;
           const limit: number = parseInt(query.limit as string) || 10;
           const skip: number = (page - 1) * limit;
@@ -330,27 +329,19 @@ export const prizes = (app: Elysia) => {
                 createdAt: true,
                 updatedAt: true,
                 sanityChestId: true,
+                rewardImageRef: true,
                 user: {
                   select: {
                     username: true,
                   },
                 },
               },
+              orderBy: {
+                createdAt: "desc",
+              },
               take: limit,
               skip: skip,
             });
-
-            let chests: ChestResponse[] = [];
-            try {
-              chests = await cms.fetch('*[_type == "lootchest"]');
-            } catch {
-              set.status = 500;
-              return {
-                success: false,
-                data: null,
-                message: "An error occurred while fetching chests.",
-              };
-            }
 
             const totalCount = await db.prizeLog.count();
             const totalPages = Math.ceil(totalCount / limit);
