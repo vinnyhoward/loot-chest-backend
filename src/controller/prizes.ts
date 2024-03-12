@@ -37,8 +37,16 @@ export const prizes = (app: Elysia) => {
                     claimed: true,
                     claimedAt: true,
                     sanityRewardId: true,
+                    user: {
+                      select: {
+                        username: true,
+                      },
+                    },
                   },
                 },
+              },
+              orderBy: {
+                createdAt: "desc",
               },
             });
 

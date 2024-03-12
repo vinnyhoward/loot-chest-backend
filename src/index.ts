@@ -25,7 +25,7 @@ const app = new Elysia()
   .use(prizes)
   .use(chests)
   .use(keys)
-  .listen(process.env.API_PORT || 8020);
+  .listen(process.env.PORT || 8020);
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
