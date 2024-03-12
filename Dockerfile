@@ -27,4 +27,4 @@ RUN bun install
 EXPOSE 3000
 
 # Run when the container launches
-CMD ["bun", "run", "dev"]
+CMD ["bun", "run", "start"]
