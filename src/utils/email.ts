@@ -74,11 +74,9 @@ export const emailHtml = (token: string, user: User) => {
                                                     href="https://main--lootchest.netlify.app/"
                                                     target="_blank"
                                                     ><img
-                                                      src="https://storage.cloud.google.com/loot_chest_images/temp_logo.png"
+                                                      src="https://i.ibb.co/BjwmwRC/temp-logo.png"
                                                       width="250"
                                                       border="0"
-                                                      class="CToWUd"
-                                                      data-bit="iit"
                                                   /></a>
                                                 </td>
                                               </tr>
