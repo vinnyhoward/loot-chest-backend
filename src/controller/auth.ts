@@ -1,5 +1,7 @@
 import { Elysia, t } from "elysia";
 import { User } from "../types";
+import { MailerSend, EmailParams, Sender, Recipient } from "mailersend";
+import { emailHtml } from "../utils/email";
 
 export const auth = (app: Elysia) =>
   app.group("/users", (app) => {
@@ -453,6 +455,7 @@ export const auth = (app: Elysia) =>
               select: {
                 id: true,
                 email: true,
+                username: true,
               },
             });
 
@@ -467,9 +470,28 @@ export const auth = (app: Elysia) =>
               };
             }
 
+            const mailerSend = new MailerSend({
+              apiKey: process.env.MAILERSEND_API_KEY as string,
+            });
             const token = await jwt.sign({
               userId: user.id,
             });
+            const sender = process.env.EMAIL_USER as string;
+            const name = user.username;
+            const userEmail = user.email;
+            const html = emailHtml(token, user);
+
+            const sentFrom = new Sender(sender, "Loot Chest 🎁");
+            const recipients = [new Recipient(userEmail, name)];
+            const emailParams = new EmailParams()
+              .setFrom(sentFrom)
+              .setTo(recipients)
+              .setSubject("Password Reset")
+              .setHtml(html)
+              .setText("Hello world?");
+
+            const emailSent = await mailerSend.email.send(emailParams);
+            console.log("email sent", emailSent);
 
             set.status = 200;
             return {
